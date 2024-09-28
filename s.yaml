@@ -1,0 +1,43 @@
+# ------------------------------------
+#   官方手册: https://manual.serverless-devs.com/user-guide/aliyun/#fc3
+#   常见小贴士: https://manual.serverless-devs.com/user-guide/tips/
+#   有问题快来钉钉群问一下吧：33947367
+# ------------------------------------
+edition: 3.0.0
+name: fc-auto-cert
+access: "default"
+
+resources:
+  fc-auto-cert:
+    component: fc3 
+    actions:       
+      # pre-${regex('deploy|local')}: 
+      #   - component: fc3 build 
+    props:
+      region: ${env('REGION')}
+      functionName: "fc-auto-cert"
+      runtime: python3.10
+      description: 'hello world by serverless devs'
+      role: acs:ram::1879559157811087:role/fc-auto-cert
+      timeout: 300
+      memorySize: 256
+      cpu: 0.25
+      diskSize: 512
+      code: ./code
+      handler: index.handler
+      environmentVariables:
+        PYTHONPATH: /code/python
+        PATH: /code/python/bin:/var/fc/lang/python3.10/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
+        ENDPOINT: ${env('ENDPOINT')}
+        BUCKNAME: ${env('BUCKNAME')}
+        EMAIL: ${env('EMAIL')}
+        
+      triggers:
+        - triggerName: timerTrigger # 触发器名称
+          triggerType: timer # 触发器类型
+          description: '每月1日触发一次'
+          qualifier: LATEST # 触发服务的版本
+          triggerConfig:
+            cronExpression: CRON_TZ=Asia/Shanghai 0 0 4 1 * *
+            enable: true
+            payload: ''
